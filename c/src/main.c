@@ -9,9 +9,11 @@ int main(int argc, const char **argv) {
   const char *filepath = argv[2];
 
   if (strncmp(filetype, "stbl", 4) == 0) {
-    read_stbl(filepath);
+    struct StringTable stbl = read_stbl(filepath);
+    print_stbl(stbl);
   } else if (strncmp(filetype, "pkg", 3) == 0) {
-    read_pkg(filepath);
+    exit_with_error("PKG parsing not implemented.");
+    // read_pkg(filepath);
   } else {
     printf("Filetype not recognized: %s", filetype);
     return 1;

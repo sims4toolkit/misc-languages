@@ -23,6 +23,18 @@ struct StringTable {
 #pragma region Functions
 
 /**
+ * @brief Prints the given string table to the console.
+ *
+ * @param stbl String table to print
+ */
+void print_stbl(struct StringTable stbl) {
+  for (int i = 0; i < stbl.num_entries; ++i) {
+    struct StringEntry entry = stbl.entries[i];
+    printf("%X: %s", entry.key, entry.value);
+  }
+}
+
+/**
  * @brief Reads and returns a string table from the file at the given path.
  *
  * @param filepath Path of file containing STBL data

@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#include "helpers.h";
+#include "helpers.h"
 
 #pragma region Reading
 
@@ -33,10 +33,10 @@ char read_char(char **bufferptr) {
 }
 
 char *read_chars(char **bufferptr, int length) {
-  char str[length];
-  for (int i = 0; i < length; ++i) str[i] = *bufferptr[i];
+  char *str[length];
+  for (int i = 0; i < length; ++i) *str[i] = *bufferptr[i];
   *bufferptr += length;
-  return str;
+  return *str;
 }
 
 #pragma endregion Reading
