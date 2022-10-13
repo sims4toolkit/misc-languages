@@ -1,5 +1,5 @@
 build:
-	clang ./main.c -o ./out/program
+	clang ./src/main.c -o ./out/program
 
 run:
 	./out/program
