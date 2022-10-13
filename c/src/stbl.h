@@ -15,7 +15,6 @@ struct StringEntry {
 
 struct StringTable {
   uint64_t num_entries;
-  uint32_t string_length;
   struct StringEntry *entries;
 };
 
@@ -48,14 +47,15 @@ struct StringTable read_stbl(const char *filepath) {
   struct StringEntry entries[stbl.num_entries];
   stbl.entries = entries;
 
-  *bufferptr += 2;  // mnReserved
-
-  stbl.string_length = read_uint32_le(bufferptr);
+  *bufferptr += 6;  // mnReserved + mnStringLength
 
   for (int i = 0; i < stbl.num_entries; ++i) {
     struct StringEntry entry;
     entry.key = read_uint32_le(bufferptr);
-    entry.value = read_string(bufferptr);
+    if (read_char(bufferptr))  // mnFlags
+      exit_with_error("Expected entry flags to be 0.");
+    short int length = read_uint16_le(bufferptr);
+    entry.value = read_chars(bufferptr, length);
     entries[i] = entry;
   }
 

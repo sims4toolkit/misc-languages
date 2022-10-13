@@ -26,14 +26,17 @@ uint64_t read_uint64_le(char **bufferptr) {
   return _read_uint_le(bufferptr, sizeof(uint64_t));
 }
 
-const char read_char(char **bufferptr) {
+char read_char(char **bufferptr) {
   char c = **bufferptr;
   ++*bufferptr;
   return c;
 }
 
-char *read_string(char **bufferptr) {
-  return "";  // FIXME:
+char *read_chars(char **bufferptr, int length) {
+  char str[length];
+  for (int i = 0; i < length; ++i) str[i] = *bufferptr[i];
+  *bufferptr += length;
+  return str;
 }
 
 #pragma endregion Reading
