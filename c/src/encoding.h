@@ -30,11 +30,3 @@ uint64_t read_uint64_le(char *buffer, long int offset) {
 #pragma region Writing Little Endian
 // TODO:
 #pragma endregion Writing Little Endian
-
-#pragma region Reading Big Endian
-// TODO:
-#pragma endregion Reading Big Endian
-
-#pragma region Writing Big Endian
-// TODO:
-#pragma endregion Writing Big Endian
