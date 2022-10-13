@@ -38,13 +38,6 @@ char read_char(char **bufferptr) {
   return c;
 }
 
-char *read_chars(char **bufferptr, int length, char terminate) {
-  char *str[length + (terminate ? 1 : 0)];
-  for (int i = 0; i < length; ++i) *str[i] = *bufferptr[i];
-  *bufferptr += length;
-  return *str;
-}
-
 #pragma endregion Reading
 
 #pragma region Writing
