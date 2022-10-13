@@ -7,9 +7,15 @@
 #pragma region Reading
 
 static uint64_t _read_uint_le(char **bufferptr, int bytes) {
-  int i;
+  uint32_t byte;  // FIXME: this can probably be a char, but it's not working
   uint64_t value = 0;
-  for (i = 0; i < bytes; ++i) value += (*bufferptr)[i] * ipow(2, i);
+
+  for (int i = 0; i < bytes; ++i) {
+    byte = (*bufferptr)[i] & (uint32_t)0xFF;
+    uint64_t factor = i ? (((uint64_t)1) << (i * 8)) : 1;
+    value += byte * factor;
+  }
+
   *bufferptr += bytes;
   return value;
 }
@@ -32,8 +38,8 @@ char read_char(char **bufferptr) {
   return c;
 }
 
-char *read_chars(char **bufferptr, int length) {
-  char *str[length];
+char *read_chars(char **bufferptr, int length, char terminate) {
+  char *str[length + (terminate ? 1 : 0)];
   for (int i = 0; i < length; ++i) *str[i] = *bufferptr[i];
   *bufferptr += length;
   return *str;
