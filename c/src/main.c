@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "pkg.h"
 #include "stbl.h"
 
 int main(int argc, const char **argv) {
