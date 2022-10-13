@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdlib.h>
+#include <string.h>
 
 #include "helpers.h"
 
@@ -36,6 +37,12 @@ char read_char(char **bufferptr) {
   char c = **bufferptr;
   ++*bufferptr;
   return c;
+}
+
+void read_string(char **bufferptr, char *dst, size_t bytes) {
+  strncpy(dst, *bufferptr, bytes);
+  dst[bytes] = '\0';
+  *bufferptr += bytes;
 }
 
 #pragma endregion Reading

@@ -9,8 +9,7 @@ int main(int argc, const char **argv) {
   const char *filepath = argv[2];
 
   if (strncmp(filetype, "stbl", 4) == 0) {
-    struct StringTable stbl = read_stbl(filepath);
-    print_stbl(stbl);
+    print_stbl(read_stbl(filepath));
   } else if (strncmp(filetype, "pkg", 3) == 0) {
     exit_with_error("PKG parsing not implemented.");
     // read_pkg(filepath);

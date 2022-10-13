@@ -30,7 +30,7 @@ struct StringTable {
 void print_stbl(struct StringTable stbl) {
   for (int i = 0; i < stbl.num_entries; ++i) {
     struct StringEntry entry = stbl.entries[i];
-    printf("0x%08X: %s", entry.key, entry.value);
+    printf("0x%08X: %s\n", entry.key, entry.value);
   }
 }
 
@@ -69,9 +69,7 @@ struct StringTable read_stbl(const char *filepath) {
     int length = read_uint16_le(bufferptr);
     char str[length + 1];
     entry.value = str;
-    strncpy(str, buffer, length);
-    str[length] = '\0';
-    *bufferptr += length;
+    read_string(bufferptr, entry.value, length);
     entries[i] = entry;
   }
 
