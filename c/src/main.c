@@ -1,17 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void read_stbl(const char *filepath) {
-  printf("Reading STBL: %s", filepath);
-  // FILE *file = fopen(filepath, "r");
-  // fclose(file);
-}
-
-void read_pkg(const char *filepath) {
-  printf("Reading PKG: %s", filepath);
-  // FILE *file = fopen(filepath, "r");
-  // fclose(file);
-}
+#include "stbl.h"
 
 int main(int argc, const char **argv) {
   const char *filetype = argv[1];
