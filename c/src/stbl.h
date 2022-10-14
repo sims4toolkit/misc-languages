@@ -59,7 +59,11 @@ struct StringTable read_stbl(const char *filepath) {
   struct StringEntry entries[stbl.num_entries];
   stbl.entries = entries;
 
-  *bufferptr += 6;  // mnReserved + mnStringLength
+  *bufferptr += 2;  // mnReserved
+
+  uint32_t total_length = read_uint32_le(bufferptr);
+  char *strings_buffer = (char *)malloc(total_length);
+  char **strings_bufferptr = &strings_buffer;
 
   for (int i = 0; i < stbl.num_entries; ++i) {
     struct StringEntry entry;
@@ -67,9 +71,9 @@ struct StringTable read_stbl(const char *filepath) {
     if (read_char(bufferptr))  // mnFlags
       exit_with_error("Expected entry flags to be 0.");
     int length = read_uint16_le(bufferptr);
-    char str[length + 1];
-    entry.value = str;
-    read_string(bufferptr, entry.value, length);
+    read_string(bufferptr, *strings_bufferptr, length);
+    entry.value = *strings_bufferptr;
+    *strings_bufferptr += length + 1;
     entries[i] = entry;
   }
 
