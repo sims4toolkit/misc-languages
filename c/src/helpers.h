@@ -14,23 +14,18 @@ void exit_with_error(const char *msg) {
 }
 
 /**
- * @brief Copies the bytes in the file at the given path to a buffer.
+ * @brief Allocates a buffer for the given file and returns its address.
  *
- * @param filepath Path to file to read
- * @return char* Buffer containing file bytes
+ * @param filepath Full path to file to read
+ * @return char* Address to a buffer containing the file's bytes
  */
-char *get_buffer(const char *filepath) {
-  FILE *fileptr;
-  char *buffer;
-  long filelen;
-
-  fileptr = fopen(filepath, "rb");
+char *malloc_buffer_from_file(const char *filepath) {
+  FILE *fileptr = fopen(filepath, "rb");
   fseek(fileptr, 0, SEEK_END);
-  filelen = ftell(fileptr);
+  long filelen = ftell(fileptr);
   rewind(fileptr);
-  buffer = (char *)malloc(filelen * sizeof(char));
+  char *buffer = (char *)malloc(filelen * sizeof(char));
   fread(buffer, filelen, 1, fileptr);
   fclose(fileptr);
-
   return buffer;
 }

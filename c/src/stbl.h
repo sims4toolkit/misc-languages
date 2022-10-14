@@ -41,7 +41,7 @@ void print_stbl(struct StringTable stbl) {
  * @return struct StringTable String table read from specified file
  */
 struct StringTable read_stbl(const char *filepath) {
-  char *buffer = get_buffer(filepath);
+  char *buffer = malloc_buffer_from_file(filepath);
   char **bufferptr = &buffer;
 
   if (strncmp(buffer, "STBL", 4) != 0)  // mnFileIdentifier
@@ -72,8 +72,9 @@ struct StringTable read_stbl(const char *filepath) {
       exit_with_error("Expected entry flags to be 0.");
     int length = read_uint16_le(bufferptr);
     read_string(bufferptr, *strings_bufferptr, length);
-    entry.value = *strings_bufferptr;
+    (*strings_bufferptr)[length] = '\0';
     *strings_bufferptr += length + 1;
+    entry.value = *strings_bufferptr;
     entries[i] = entry;
   }
 
