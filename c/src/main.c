@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "pkg.h"
+// #include "pkg.h"
 #include "stbl.h"
 
 int main(int argc, const char **argv) {
@@ -9,7 +9,8 @@ int main(int argc, const char **argv) {
   const char *filepath = argv[2];
 
   if (strncmp(filetype, "stbl", 4) == 0) {
-    print_stbl(read_stbl(filepath));
+    struct StringTable *stbl = read_stbl(filepath);
+    print_stbl(stbl);
   } else if (strncmp(filetype, "pkg", 3) == 0) {
     exit_with_error("PKG parsing not implemented.");
     // read_pkg(filepath);

@@ -27,11 +27,9 @@ struct StringTable {
  *
  * @param stbl String table to print
  */
-void print_stbl(struct StringTable stbl) {
-  for (int i = 0; i < stbl.num_entries; ++i) {
-    struct StringEntry entry = stbl.entries[i];
-    printf("0x%08X: %s\n", entry.key, entry.value);
-  }
+void print_stbl(struct StringTable *stbl) {
+  for (int i = 0; i < stbl->num_entries; ++i)
+    printf("0x%08X: %s\n", stbl->entries[i].key, stbl->entries[i].value);
 }
 
 /**
@@ -40,7 +38,7 @@ void print_stbl(struct StringTable stbl) {
  * @param filepath Path of file containing STBL data
  * @return struct StringTable String table read from specified file
  */
-struct StringTable read_stbl(const char *filepath) {
+struct StringTable *read_stbl(const char *filepath) {
   char *buffer = malloc_buffer_from_file(filepath);
   char **bufferptr = &buffer;
 
@@ -54,28 +52,28 @@ struct StringTable read_stbl(const char *filepath) {
   if (read_char(bufferptr))  // mbCompressed
     exit_with_error("Expected STBL to not be compressed.");
 
-  struct StringTable stbl;
-  stbl.num_entries = read_uint64_le(bufferptr);
-  struct StringEntry entries[stbl.num_entries];
-  stbl.entries = entries;
+  struct StringTable *stbl =
+      (struct StringTable *)malloc(sizeof(struct StringTable));
+  stbl->num_entries = read_uint64_le(bufferptr);
+  stbl->entries = (struct StringEntry *)malloc(sizeof(struct StringEntry) *
+                                               stbl->num_entries);
 
-  *bufferptr += 2;  // mnReserved
+  *bufferptr += 2;  // mnReserved can be ignored
 
   uint32_t total_length = read_uint32_le(bufferptr);
   char *strings_buffer = (char *)malloc(total_length);
   char **strings_bufferptr = &strings_buffer;
 
-  for (int i = 0; i < stbl.num_entries; ++i) {
-    struct StringEntry entry;
-    entry.key = read_uint32_le(bufferptr);
+  for (int i = 0; i < stbl->num_entries; ++i) {
+    stbl->entries[i].key = read_uint32_le(bufferptr);
     if (read_char(bufferptr))  // mnFlags
       exit_with_error("Expected entry flags to be 0.");
-    int length = read_uint16_le(bufferptr);
-    read_string(bufferptr, *strings_bufferptr, length);
-    (*strings_bufferptr)[length] = '\0';
-    *strings_bufferptr += length + 1;
-    entry.value = *strings_bufferptr;
-    entries[i] = entry;
+    size_t string_length = read_uint16_le(bufferptr);
+    strncpy(*strings_bufferptr, *bufferptr, string_length);
+    (*strings_bufferptr)[string_length] = '\0';
+    stbl->entries[i].value = *strings_bufferptr;
+    *strings_bufferptr += string_length + 1;
+    *bufferptr += string_length;
   }
 
   return stbl;
