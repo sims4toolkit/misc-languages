@@ -24,6 +24,7 @@ char *malloc_buffer_from_file(const char *filepath) {
   fseek(fileptr, 0, SEEK_END);
   long filelen = ftell(fileptr);
   rewind(fileptr);
+  // FIXME: don't malloc here cause it'll need to be freed
   char *buffer = (char *)malloc(filelen * sizeof(char));
   fread(buffer, filelen, 1, fileptr);
   fclose(fileptr);
