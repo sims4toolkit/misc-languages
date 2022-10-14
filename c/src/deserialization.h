@@ -5,8 +5,6 @@
 
 #include "helpers.h"
 
-#pragma region Reading
-
 static uint64_t _read_uint_le(char **bufferptr, int bytes) {
   uint64_t byte;
   uint64_t value = 0;
@@ -38,15 +36,3 @@ char read_char(char **bufferptr) {
   *bufferptr += sizeof(char);
   return c;
 }
-
-// void read_string(char **bufferptr, char *dst, size_t bytes) {
-//   strncpy(dst, *bufferptr, bytes);
-//   dst[bytes] = '\0';
-//   *bufferptr += bytes;
-// }
-
-#pragma endregion Reading
-
-#pragma region Writing
-// TODO:
-#pragma endregion Writing

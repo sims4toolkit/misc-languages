@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "encoding.h"
+#include "deserialization.h"
 #include "helpers.h"
 
 #pragma region Structs
@@ -39,7 +39,8 @@ void print_stbl(struct StringTable *stbl) {
  * @return struct StringTable String table read from specified file
  */
 struct StringTable *read_stbl(const char *filepath) {
-  char *buffer = malloc_buffer_from_file(filepath);
+  char *buffer = (char *)malloc(0);
+  realloc_buffer_from_file(&buffer, filepath);
   char **bufferptr = &buffer;
 
   if (strncmp(buffer, "STBL", 4) != 0)  // mnFileIdentifier
@@ -75,6 +76,8 @@ struct StringTable *read_stbl(const char *filepath) {
     *strings_bufferptr += string_length + 1;
     *bufferptr += string_length;
   }
+
+  free(*buffer);
 
   return stbl;
 }
