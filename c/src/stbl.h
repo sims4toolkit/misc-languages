@@ -1,47 +1,44 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
-#include "deserialization.h"
+#include "encoding.h"
 #include "helpers.h"
 
-#pragma region Structs
-
-struct StringEntry {
+typedef struct StringEntry {
   uint32_t key;
-  char *value;
-};
+  char* value;
+} StringEntry;
 
-struct StringTable {
-  uint64_t num_entries;
-  struct StringEntry *entries;
-};
-
-#pragma endregion Structs
-
-#pragma region Functions
+typedef struct StringTable {
+  size_t count;
+  StringEntry* entries;
+} StringTable;
 
 /**
- * @brief Prints the given string table to the console.
+ * @brief Frees all memory associated with a StringTable.
  *
- * @param stbl String table to print
+ * @param stblptr Pointer to StringTable to free
  */
-void print_stbl(struct StringTable *stbl) {
-  for (int i = 0; i < stbl->num_entries; ++i)
-    printf("0x%08X: %s\n", stbl->entries[i].key, stbl->entries[i].value);
+void destroy_stbl(StringTable* stblptr) {
+  // TODO: edit if using different mallocs in load_stbl()
+  free(stblptr->entries[0].value);
+  free(stblptr->entries);
+  free(stblptr);
 }
 
 /**
- * @brief Reads and returns a string table from the file at the given path.
+ * @brief Creates a new StringTable containing the data in the specified file.
  *
- * @param filepath Path of file containing STBL data
- * @return struct StringTable String table read from specified file
+ * @param filepath Path to file containing STBL data
+ *
+ * @return StringTable* Pointer to created StringTable
  */
-struct StringTable *read_stbl(const char *filepath) {
-  char *buffer = (char *)malloc(0);
-  realloc_buffer_from_file(&buffer, filepath);
-  char **bufferptr = &buffer;
+StringTable* load_stbl(const char* filepath) {
+  char* buffer = load_file_buffer(filepath);
+  char** bufferptr = &buffer;
 
   if (strncmp(buffer, "STBL", 4) != 0)  // mnFileIdentifier
     exit_with_error("Expected STBL to begin with \"STBL\".");
@@ -53,33 +50,49 @@ struct StringTable *read_stbl(const char *filepath) {
   if (read_char(bufferptr))  // mbCompressed
     exit_with_error("Expected STBL to not be compressed.");
 
-  struct StringTable *stbl =
-      (struct StringTable *)malloc(sizeof(struct StringTable));
-  stbl->num_entries = read_uint64_le(bufferptr);
-  stbl->entries = (struct StringEntry *)malloc(sizeof(struct StringEntry) *
-                                               stbl->num_entries);
+  uint64_t count = read_uint64_le(bufferptr);
+  *bufferptr += 2;  // mnReserved
+  uint32_t strings_length = read_uint32_le(bufferptr);
 
-  *bufferptr += 2;  // mnReserved can be ignored
+  // TODO: try below, more efficient
+  // size_t stbl_size = sizeof(StringTable);
+  // size_t entries_size = count * sizeof(StringEntry);
+  // void* mem = malloc(stbl_size + entries_size + strings_length);
+  // StringTable* stbl = (StringTable*)mem;
+  // StringEntry* entries = (StringEntry*)(stbl + stbl_size);
+  // char* strings = (char*)(entries + entries_size);
 
-  uint32_t total_length = read_uint32_le(bufferptr);
-  char *strings_buffer = (char *)malloc(total_length);
-  char **strings_bufferptr = &strings_buffer;
+  StringTable* stbl = (StringTable*)malloc(sizeof(StringTable));
+  StringEntry* entries = (StringEntry*)malloc(count * sizeof(StringEntry));
+  char* strings = (char*)malloc(strings_length);
+  char** strings_offset = &strings;
 
-  for (int i = 0; i < stbl->num_entries; ++i) {
+  stbl->count = count;
+  stbl->entries = entries;
+
+  for (size_t i = 0; i < count; ++i) {
     stbl->entries[i].key = read_uint32_le(bufferptr);
     if (read_char(bufferptr))  // mnFlags
       exit_with_error("Expected entry flags to be 0.");
     size_t string_length = read_uint16_le(bufferptr);
-    strncpy(*strings_bufferptr, *bufferptr, string_length);
-    (*strings_bufferptr)[string_length] = '\0';
-    stbl->entries[i].value = *strings_bufferptr;
-    *strings_bufferptr += string_length + 1;
+    strncpy(*strings_offset, *bufferptr, string_length);
+    (*strings_offset)[string_length] = '\0';
+    stbl->entries[i].value = *strings_offset;
+    *strings_offset += string_length + 1;
     *bufferptr += string_length;
   }
 
-  free(*buffer);
+  // free(&buffer); // FIXME:
 
   return stbl;
 }
 
-#pragma endregion Functions
+/**
+ * @brief Prints the data in the StringTable to the console.
+ *
+ * @param stblptr Pointer to StringTable to print
+ */
+void print_stbl(StringTable* stblptr) {
+  for (int i = 0; i < stblptr->count; ++i)
+    printf("0x%08X: %s\n", stblptr->entries[i].key, stblptr->entries[i].value);
+}
