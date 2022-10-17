@@ -20,13 +20,12 @@ typedef struct StringTable {
 /**
  * @brief Frees all memory associated with a StringTable.
  *
- * @param stblptr Pointer to StringTable to free
+ * @param stbl Pointer to StringTable to free
  */
-void destroy_stbl(StringTable* stblptr) {
-  // TODO: edit if using different mallocs in load_stbl()
-  free(stblptr->entries[0].value);
-  free(stblptr->entries);
-  free(stblptr);
+void destroy_stbl(StringTable* stbl) {
+  free(stbl->entries[0].value);
+  free(stbl->entries);
+  free(stbl);
 }
 
 /**
@@ -37,8 +36,8 @@ void destroy_stbl(StringTable* stblptr) {
  * @return StringTable* Pointer to created StringTable
  */
 StringTable* load_stbl(const char* filepath) {
-  char* buffer = load_file_buffer(filepath);
-  char** bufferptr = &buffer;
+  char** bufferptr = load_file_buffer(filepath);
+  char* buffer = *bufferptr;
 
   if (strncmp(buffer, "STBL", 4) != 0)  // mnFileIdentifier
     exit_with_error("Expected STBL to begin with \"STBL\".");
@@ -53,14 +52,6 @@ StringTable* load_stbl(const char* filepath) {
   uint64_t count = read_uint64_le(bufferptr);
   *bufferptr += 2;  // mnReserved
   uint32_t strings_length = read_uint32_le(bufferptr);
-
-  // TODO: try below, more efficient
-  // size_t stbl_size = sizeof(StringTable);
-  // size_t entries_size = count * sizeof(StringEntry);
-  // void* mem = malloc(stbl_size + entries_size + strings_length);
-  // StringTable* stbl = (StringTable*)mem;
-  // StringEntry* entries = (StringEntry*)(stbl + stbl_size);
-  // char* strings = (char*)(entries + entries_size);
 
   StringTable* stbl = (StringTable*)malloc(sizeof(StringTable));
   StringEntry* entries = (StringEntry*)malloc(count * sizeof(StringEntry));
@@ -82,7 +73,7 @@ StringTable* load_stbl(const char* filepath) {
     *bufferptr += string_length;
   }
 
-  // free(&buffer); // FIXME:
+  free(buffer);  // FIXME:
 
   return stbl;
 }
@@ -92,7 +83,7 @@ StringTable* load_stbl(const char* filepath) {
  *
  * @param stblptr Pointer to StringTable to print
  */
-void print_stbl(StringTable* stblptr) {
-  for (int i = 0; i < stblptr->count; ++i)
-    printf("0x%08X: %s\n", stblptr->entries[i].key, stblptr->entries[i].value);
+void print_stbl(StringTable* stbl) {
+  for (int i = 0; i < stbl->count; ++i)
+    printf("0x%08X: %s\n", stbl->entries[i].key, stbl->entries[i].value);
 }

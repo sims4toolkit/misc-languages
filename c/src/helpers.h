@@ -17,7 +17,7 @@ void exit_with_error(const char *msg) {
  *
  * @param filepath Full path to file to load
  */
-char *load_file_buffer(const char *filepath) {
+char **load_file_buffer(const char *filepath) {
   FILE *fileptr;
   char **bufferptr;
   long filelen;
@@ -30,5 +30,5 @@ char *load_file_buffer(const char *filepath) {
   fread(*bufferptr, filelen, 1, fileptr);
   fclose(fileptr);
 
-  return *bufferptr;
+  return bufferptr;
 }
