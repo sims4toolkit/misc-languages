@@ -73,7 +73,7 @@ StringTable* load_stbl(const char* filepath) {
     *bufferptr += string_length;
   }
 
-  free(buffer);  // FIXME:
+  free(buffer);
 
   return stbl;
 }
